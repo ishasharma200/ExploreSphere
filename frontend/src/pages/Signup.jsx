@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login as loginApi } from '../api/authApi';
+import { signup } from '../api/authApi';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from '../components/Navbar';
 
-const Login = () => {
-  const [form, setForm] = useState({ email: '', password: '' });
+const Signup = () => {
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -21,11 +21,11 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const data = await loginApi(form.email, form.password);
+      const data = await signup(form.name, form.email, form.password);
       login(data.token, data.user);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'Signup failed');
     } finally {
       setLoading(false);
     }
@@ -36,12 +36,21 @@ const Login = () => {
       <Navbar isAuthenticated={false} />
       <div className="auth-panel form-card stack">
         <div>
-          <p className="muted" style={{ margin: '0 0 8px' }}>Welcome back</p>
-          <h2 className="section-title">Login</h2>
-          <p className="section-copy">Sign in to add places, leave reviews, and manage your profile.</p>
+          <p className="muted" style={{ margin: '0 0 8px' }}>Join the community</p>
+          <h2 className="section-title">Signup</h2>
+          <p className="section-copy">Create an account to contribute places and reviews.</p>
         </div>
         {error && <p style={{ color: '#b91c1c', margin: 0 }}>{error}</p>}
         <form onSubmit={handleSubmit} className="form-grid">
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          value={form.name}
+          onChange={handleChange}
+          className="field"
+          required
+        />
         <input
           type="email"
           name="email"
@@ -61,13 +70,13 @@ const Login = () => {
           required
         />
         <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%' }}>
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? 'Signing up...' : 'Signup'}
         </button>
         </form>
         <p className="section-copy" style={{ margin: 0 }}>
-          Don't have an account?{' '}
-          <button onClick={() => navigate('/signup')} className="btn btn-secondary" style={{ padding: '6px 12px', marginLeft: '6px' }}>
-            Signup
+          Already have an account?{' '}
+          <button onClick={() => navigate('/login')} className="btn btn-secondary" style={{ padding: '6px 12px', marginLeft: '6px' }}>
+            Login
           </button>
         </p>
       </div>
@@ -75,4 +84,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
