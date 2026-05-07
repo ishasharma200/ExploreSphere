@@ -25,7 +25,7 @@ const About = () => {
 			<div className="hero-panel stack">
 				<div className="hero-grid">
 					<div className="stack" style={{ gap: '10px' }}>
-						<p className="muted" style={{ margin: 0 }}>About Explore Sphere</p>
+						<span className="section-badge">About Explore Sphere</span>
 						<h1 className="section-title">A professional venue discovery platform for modern browsing and reviews.</h1>
 						<p className="section-copy">
 							Explore Sphere is a polished product layer for discovering listings, leaving reviews, and surfacing new activity in realtime.

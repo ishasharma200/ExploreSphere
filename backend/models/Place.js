@@ -6,6 +6,7 @@ const placeSchema = new mongoose.Schema({
   category: { type: String },
   description: { type: String },
   images: [{ type: String }],
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   createdAt: { type: Date, default: Date.now },
 });
 

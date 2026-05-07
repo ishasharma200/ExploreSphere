@@ -2,6 +2,7 @@ const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const { validateAuthSignup, validateAuthLogin } = require('../utils/validation');
 
 // Simple password hashing (for demo; use bcrypt in production)
 const hashPassword = (password) => {
@@ -15,8 +16,9 @@ const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'All fields required' });
+    const validation = validateAuthSignup({ name, email, password });
+    if (!validation.valid) {
+      return res.status(400).json({ message: validation.message, errors: validation.errors });
     }
 
     const existingUser = await User.findOne({ email });
@@ -47,8 +49,9 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password required' });
+    const validation = validateAuthLogin({ email, password });
+    if (!validation.valid) {
+      return res.status(400).json({ message: validation.message, errors: validation.errors });
     }
 
     const user = await User.findOne({ email });

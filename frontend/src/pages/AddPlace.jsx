@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import axios from '../api/axios';
+import { createPlace } from '../api/placeApi';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import ImageUploadInput from '../components/ImageUploadInput';
+import { getErrorMessage } from '../utils/getErrorMessage';
+import { validatePlaceForm } from '../utils/formValidation';
 
 const AddPlace = () => {
   const { auth, logout } = useAuth();
@@ -12,6 +15,7 @@ const AddPlace = () => {
     location: '',
     category: '',
     description: '',
+    images: [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,20 +24,27 @@ const AddPlace = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleImagesChange = (images) => {
+    setForm({ ...form, images });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const validationError = validatePlaceForm(form);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setError('');
     setLoading(true);
 
     try {
-      await axios.post('/places', form, {
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-        },
-      });
+      await createPlace(form, auth.token);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add place');
+      setError(getErrorMessage(err, 'Failed to add place'));
     } finally {
       setLoading(false);
     }
@@ -66,7 +77,7 @@ const AddPlace = () => {
       />
       <div className="auth-panel form-card stack">
         <div>
-          <p className="muted" style={{ margin: '0 0 8px' }}>Submit a place</p>
+          <span className="section-badge">Submit a place</span>
           <h2 className="section-title">Add a new venue listing</h2>
           <p className="section-copy">Publish cafes, restaurants, hotels, or other venues to the platform.</p>
         </div>
@@ -112,6 +123,7 @@ const AddPlace = () => {
             className="textarea"
             style={{ minHeight: '130px' }}
           />
+          <ImageUploadInput onImagesChange={handleImagesChange} currentImages={form.images} />
           <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%' }}>
             {loading ? 'Adding...' : 'Add place'}
           </button>

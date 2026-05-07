@@ -4,6 +4,7 @@ import { getPlaces } from '../api/placeApi';
 import PlaceCard from '../components/PlaceCard';
 import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
+import LiveFeed from '../components/LiveFeed';
 import { useAuth } from '../hooks/useAuth';
 import socket from '../realtime/socket';
 
@@ -12,6 +13,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('all');
+  const [liveEvents, setLiveEvents] = useState([]);
   const navigate = useNavigate();
   const { auth, logout } = useAuth();
 
@@ -30,6 +32,10 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    const addLiveEvent = (title, detail) => {
+      setLiveEvents((currentEvents) => [{ id: `${Date.now()}-${Math.random()}`, title, detail }, ...currentEvents].slice(0, 4));
+    };
+
     const handlePlaceCreated = (newPlace) => {
       setPlaces((currentPlaces) => {
         if (currentPlaces.some((place) => place._id === newPlace._id)) {
@@ -37,12 +43,27 @@ const Home = () => {
         }
         return [newPlace, ...currentPlaces];
       });
+      addLiveEvent('New place published', `${newPlace.name || 'Unnamed place'} was added to the catalog.`);
+    };
+
+    const handlePlaceUpdated = (updatedPlace) => {
+      setPlaces((currentPlaces) => currentPlaces.map((place) => (place._id === updatedPlace._id ? updatedPlace : place)));
+      addLiveEvent('Place updated', `${updatedPlace.name || 'A place'} now reflects the latest changes.`);
+    };
+
+    const handlePlaceDeleted = ({ id: deletedPlaceId }) => {
+      setPlaces((currentPlaces) => currentPlaces.filter((place) => place._id !== deletedPlaceId));
+      addLiveEvent('Place removed', 'A listing was deleted and removed from the feed.');
     };
 
     socket.on('place:created', handlePlaceCreated);
+    socket.on('place:updated', handlePlaceUpdated);
+    socket.on('place:deleted', handlePlaceDeleted);
 
     return () => {
       socket.off('place:created', handlePlaceCreated);
+      socket.off('place:updated', handlePlaceUpdated);
+      socket.off('place:deleted', handlePlaceDeleted);
     };
   }, []);
 
@@ -70,7 +91,7 @@ const Home = () => {
       <div className="hero-panel stack">
         <div className="hero-grid">
           <div className="stack" style={{ gap: '10px' }}>
-            <p className="muted" style={{ margin: 0 }}>Venue intelligence for modern discovery</p>
+            <span className="section-badge">Venue intelligence for modern discovery</span>
             <h2 className="section-title">A polished platform for discovering trusted venues and reviews.</h2>
             <p className="section-copy">Explore restaurants, cafes, hotels, and public spaces through a clean product experience built for browsing, comparison, and confident decisions.</p>
             <div className="pill-group">
@@ -128,6 +149,13 @@ const Home = () => {
           category={category}
           onCategoryChange={setCategory}
           categories={categories}
+        />
+
+        <LiveFeed
+          title="Live catalog activity"
+          subtitle="Recent realtime changes across the platform"
+          items={liveEvents}
+          emptyText="New place activity will appear here as it happens."
         />
 
         {loading ? (

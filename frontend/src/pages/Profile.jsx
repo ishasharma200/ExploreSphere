@@ -32,7 +32,7 @@ const Profile = () => {
       <Navbar isAuthenticated={auth.isAuthenticated} onLogout={handleLogout} />
       <div className="auth-panel form-card stack">
         <div>
-          <p className="muted" style={{ margin: '0 0 8px' }}>Account overview</p>
+          <span className="section-badge">Account overview</span>
           <h2 className="section-title">My Profile</h2>
           <p className="section-copy">Your account details are managed securely for the active session.</p>
         </div>

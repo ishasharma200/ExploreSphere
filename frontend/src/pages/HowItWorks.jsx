@@ -27,7 +27,7 @@ const HowItWorks = () => {
 			<Navbar isAuthenticated={auth.isAuthenticated} onLogout={logout} />
 			<div className="hero-panel stack">
 				<div className="stack" style={{ gap: '10px' }}>
-					<p className="muted" style={{ margin: 0 }}>How it works</p>
+					<span className="section-badge">How it works</span>
 					<h1 className="section-title">The product flow is intentionally clean and professional.</h1>
 					<p className="section-copy">
 						The frontend is built around three user actions: discover, inspect, and contribute. That keeps the product easy to understand and ready for real use.

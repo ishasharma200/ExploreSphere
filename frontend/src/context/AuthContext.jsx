@@ -24,6 +24,25 @@ export const AuthProvider = ({ children }) => {
     setAuthReady(true);
   }, []);
 
+  // Listen for global logout events (e.g., API 401 responses)
+  useEffect(() => {
+    const handleGlobalLogout = (e) => {
+      // Allow event to pass a reason (e.g., { detail: { reason: 'unauthorized' } })
+      logout();
+      try {
+        const reason = e?.detail?.reason;
+        if (reason === 'unauthorized') {
+          // If unauthorized, redirect to login so user can sign in again
+          window.location.href = '/login';
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+    window.addEventListener('auth:logout', handleGlobalLogout);
+    return () => window.removeEventListener('auth:logout', handleGlobalLogout);
+  }, []);
+
   const login = (token, user) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));

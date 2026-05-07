@@ -18,3 +18,17 @@ export const addReview = async (placeId, rating, comment, token) => {
   );
   return res.data;
 };
+
+export const updateReview = async (reviewId, reviewData, token) => {
+  const res = await axios.put(`/reviews/${reviewId}`, reviewData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+};
+
+export const deleteReview = async (reviewId, token) => {
+  const res = await axios.delete(`/reviews/${reviewId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+};

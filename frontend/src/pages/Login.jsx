@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { login as loginApi } from '../api/authApi';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from '../components/Navbar';
+import { getErrorMessage } from '../utils/getErrorMessage';
+import { validateLoginForm } from '../utils/formValidation';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -17,6 +19,13 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const validationError = validateLoginForm(form);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setError('');
     setLoading(true);
 
@@ -25,7 +34,7 @@ const Login = () => {
       login(data.token, data.user);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(getErrorMessage(err, 'Login failed'));
     } finally {
       setLoading(false);
     }
@@ -36,7 +45,7 @@ const Login = () => {
       <Navbar isAuthenticated={false} />
       <div className="auth-panel form-card stack">
         <div>
-          <p className="muted" style={{ margin: '0 0 8px' }}>Welcome back</p>
+          <span className="section-badge">Welcome back</span>
           <h2 className="section-title">Login</h2>
           <p className="section-copy">Sign in to add places, leave reviews, and manage your profile.</p>
         </div>
